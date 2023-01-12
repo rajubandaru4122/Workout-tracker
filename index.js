@@ -63,7 +63,11 @@ app.post('/api/users', function (req, res) {
  * Add a new exercise
  * @param _id
  */
-app.post('/api/users/:_id/exercises', function (req, res) {});
+app.post('/api/users/:_id/exercises', function (req, res) {
+	const userId = req.params._id;
+
+	console.log('INPUT' - userId);
+});
 
 /**
  * GET
