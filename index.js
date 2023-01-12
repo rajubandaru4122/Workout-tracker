@@ -65,8 +65,26 @@ app.post('/api/users', function (req, res) {
  */
 app.post('/api/users/:_id/exercises', function (req, res) {
 	const userId = req.params._id;
+	const description = req.body.description;
+	const duration = req.body.duration;
+	const date = req.body.date;
 
-	console.log('INPUT' - userId);
+	//* Find the user
+	let user = ExerciseUser.findOne({ username: userId }, function (err, user) {
+		if (err) {
+			console.log('there is no user with that id...'.toLocaleUpperCase(), err);
+			res.json({ message: 'User not found!' });
+		}
+
+		//* Create the exercise for that user
+
+		res.json({
+			username: user.username,
+			description: description,
+			duration: duration,
+			date: new Date(date),
+		});
+	});
 });
 
 /**
