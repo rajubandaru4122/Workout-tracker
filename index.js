@@ -101,8 +101,8 @@ app.post('/api/users/:_id/exercises', function (req, res) {
 		];
 		const date = new Date(dateInput);
 
-		let day = days[d.getDay() - 1];
-		let month = months[d.getMonth()];
+		let day = days[dateInput.getDay() - 1];
+		let month = months[dateInput.getMonth()];
 
 		res.json({
 			username: user.username,
