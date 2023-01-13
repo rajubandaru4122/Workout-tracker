@@ -70,10 +70,13 @@ app.post('/api/users/:_id/exercises', function (req, res) {
 	const userId = req.params._id;
 	const description = req.body.description;
 	const duration = req.body.duration;
-	const date = req.body.date;
+	const dateInput = req.body.date;
 
 	//* Find the user
-	let user = ExerciseUser.findOne({ username: userId }, function (err, user) {
+	console.log(
+		'looking for user with id ['.toLocaleUpperCase() + userId + '] ...'
+	);
+	ExerciseUser.findOne({ username: userId }, function (err, user) {
 		if (err) {
 			console.log('there is no user with that id...'.toLocaleUpperCase(), err);
 			res.json({ message: 'User not found!' });
@@ -81,11 +84,31 @@ app.post('/api/users/:_id/exercises', function (req, res) {
 
 		//* Create the exercise for that user
 
+		const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+		const months = [
+			'Jan',
+			'Feb',
+			'Mar',
+			'Apr',
+			'May',
+			'Jun',
+			'Jul',
+			'Aug',
+			'Sep',
+			'Oct',
+			'Nov',
+			'Dec',
+		];
+		const date = new Date(dateInput);
+
+		let day = days[d.getDay() - 1];
+		let month = months[d.getMonth()];
+
 		res.json({
 			username: user.username,
 			description: description,
 			duration: duration,
-			date: new Date(date),
+			date: day + ' ' + month + ' ' + date.getDate() + ' ' + date.getFullYear(),
 		});
 	});
 });
