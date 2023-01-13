@@ -3,6 +3,7 @@ const app = express();
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const shortid = require('shortid');
 
 require('dotenv').config();
 
@@ -20,6 +21,7 @@ mongoose.connect(process.env.MONGO_URI, {
 
 const userSchema = new mongoose.Schema({
 	username: String,
+	_id: String,
 });
 
 let ExerciseUser = mongoose.model('ExerciseUser', userSchema);
@@ -42,11 +44,12 @@ app.get('/', (req, res) => {
  */
 app.post('/api/users', function (req, res) {
 	const inputUsername = req.body.username;
+	const id = shortid.generate();
 
 	console.log(
 		'creating a new user with username - '.toLocaleUpperCase() + inputUsername
 	);
-	let newUser = new ExerciseUser({ username: inputUsername });
+	let newUser = new ExerciseUser({ username: inputUsername, _id: id });
 
 	newUser.save((err, user) => {
 		if (err) {
