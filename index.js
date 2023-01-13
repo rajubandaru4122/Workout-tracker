@@ -76,7 +76,7 @@ app.post('/api/users/:_id/exercises', function (req, res) {
 	console.log(
 		'looking for user with id ['.toLocaleUpperCase() + userId + '] ...'
 	);
-	ExerciseUser.findOne({ username: userId }, function (err, user) {
+	ExerciseUser.findOne({ _id: userId }, function (err, user) {
 		if (err) {
 			console.log('there is no user with that id...'.toLocaleUpperCase(), err);
 			res.json({ message: 'User not found!' });
@@ -101,14 +101,16 @@ app.post('/api/users/:_id/exercises', function (req, res) {
 		];
 		const date = new Date(dateInput);
 
-		let day = days[dateInput.getDay() - 1];
+		let day = days[dateInput.getDay()];
 		let month = months[dateInput.getMonth()];
+		const fullDate =
+			day + ' ' + month + ' ' + date.getDate() + ' ' + date.getFullYear();
 
 		res.json({
 			username: user.username,
 			description: description,
 			duration: duration,
-			date: day + ' ' + month + ' ' + date.getDate() + ' ' + date.getFullYear(),
+			date: fullDate,
 		});
 	});
 });
