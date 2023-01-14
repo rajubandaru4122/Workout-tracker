@@ -27,9 +27,11 @@ const userSchema = new mongoose.Schema({
 let ExerciseUser = mongoose.model('ExerciseUser', userSchema);
 
 const exerciseSchema = new mongoose.Schema({
+	username: String,
 	description: String,
 	duration: Number,
 	date: String,
+	_id: String,
 });
 
 let Exercise = mongoose.model('Exercise', exerciseSchema);
@@ -83,7 +85,6 @@ app.post('/api/users/:_id/exercises', function (req, res) {
 		}
 
 		//* Create the exercise for that user
-
 		const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 		const months = [
 			'Jan',
@@ -106,11 +107,26 @@ app.post('/api/users/:_id/exercises', function (req, res) {
 		const fullDate =
 			day + ' ' + month + ' ' + date.getDate() + ' ' + date.getFullYear();
 
-		res.json({
+		let newExercise = new Exercise({
 			username: user.username,
 			description: description,
 			duration: duration,
 			date: fullDate,
+			_id: user._id,
+		});
+
+		newExercise.save((err, exercise) => {
+			if (err) {
+				console.error(err);
+				res.json({
+					message: 'Exercise creation failed! Something went wrong...',
+				});
+			}
+
+			res.json({
+				message: 'Exercise creation successful!',
+				exercise: exercise,
+			});
 		});
 	});
 });
