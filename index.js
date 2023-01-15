@@ -41,6 +41,25 @@ app.get('/', (req, res) => {
 });
 
 /**
+ * GET
+ * Get all users
+ */
+app.get('/api/users', function (_req, res) {
+	console.log('getting all users...'.toLocaleUpperCase());
+
+	ExerciseUser.find({}, function (err, users) {
+		if (err) {
+			console.error(err);
+			res.json({
+				message: 'Getting all users failed! Something went wrong...',
+			});
+		}
+
+		res.json({ allUsers: users });
+	});
+});
+
+/**
  * POST
  * Create a new user
  */
@@ -134,8 +153,14 @@ app.post('/api/users/:_id/exercises', function (req, res) {
 /**
  * GET
  * Get a user's exercise log
+ * @param _id
  */
-app.get('/api/users/:_id/logs?from&to&limit', function (req, res) {});
+app.get('/api/users/:_id/logs?from&to&limit', function (req, res) {
+	const userId = req.params._id;
+	const from = req.params.description;
+	const to = req.params.duration;
+	const limit = req.params.date;
+});
 
 const listener = app.listen(process.env.PORT || 3000, () => {
 	console.log('Your app is listening on port ' + listener.address().port);
