@@ -85,7 +85,7 @@ app.post('/api/users/:_id/exercises', function (req, res) {
 		}
 
 		//* Create the exercise for that user
-		const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+		const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 		const months = [
 			'Jan',
 			'Feb',
