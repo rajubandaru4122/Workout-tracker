@@ -55,7 +55,7 @@ app.get('/api/users', function (_req, res) {
 			});
 		}
 
-		res.json({ allUsers: users });
+		res.json({ users });
 	});
 });
 
@@ -78,7 +78,8 @@ app.post('/api/users', function (req, res) {
 			res.json({ message: 'User creation failed! Something went wrong...' });
 		}
 
-		res.json({ message: 'User creation successful!', user: user });
+		console.log('user creation successful!'.toLocaleUpperCase());
+		res.json({ username: user.username, _id: user._id });
 	});
 });
 
