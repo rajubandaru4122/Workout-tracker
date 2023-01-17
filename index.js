@@ -55,7 +55,7 @@ app.get('/api/users', function (_req, res) {
 			});
 		}
 
-		res.send(users);
+		res.json(users);
 	});
 });
 
@@ -143,10 +143,8 @@ app.post('/api/users/:_id/exercises', function (req, res) {
 				});
 			}
 
-			res.json({
-				message: 'Exercise creation successful!',
-				exercise: exercise,
-			});
+			console.log('exercise creation successful!'.toLocaleUpperCase());
+			res.json(exercise);
 		});
 	});
 });
@@ -161,6 +159,25 @@ app.get('/api/users/:_id/logs?from&to&limit', function (req, res) {
 	const from = req.params.description;
 	const to = req.params.duration;
 	const limit = req.params.date;
+});
+
+/**
+ * GET
+ * Delete all elements from a collection
+ */
+app.get('/api/users/delete', function (_req, res) {
+	console.log('deleting all users...'.toLocaleUpperCase());
+
+	ExerciseUser.deleteMany({}, function (err, result) {
+		if (err) {
+			console.error(err);
+			res.json({
+				message: 'Deleting all users failed! Something went wrong...',
+			});
+		}
+
+		res.json(result);
+	});
 });
 
 const listener = app.listen(process.env.PORT || 3000, () => {
