@@ -163,7 +163,7 @@ app.get('/api/users/:_id/logs?from&to&limit', function (req, res) {
 
 /**
  * GET
- * Delete all elements from a collection
+ * Delete all users
  */
 app.get('/api/users/delete', function (_req, res) {
 	console.log('deleting all users...'.toLocaleUpperCase());
@@ -173,6 +173,25 @@ app.get('/api/users/delete', function (_req, res) {
 			console.error(err);
 			res.json({
 				message: 'Deleting all users failed! Something went wrong...',
+			});
+		}
+
+		res.json(result);
+	});
+});
+
+/**
+ * GET
+ * Delete all exercises
+ */
+app.get('/api/exercises/delete', function (_req, res) {
+	console.log('deleting all exercises...'.toLocaleUpperCase());
+
+	Exercise.deleteMany({}, function (err, result) {
+		if (err) {
+			console.error(err);
+			res.json({
+				message: 'Deleting all exercises failed! Something went wrong...',
 			});
 		}
 
