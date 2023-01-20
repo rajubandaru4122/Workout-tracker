@@ -89,10 +89,11 @@ app.post('/api/users', function (req, res) {
  * @param _id
  */
 app.post('/api/users/:_id/exercises', function (req, res) {
-	const userId = req.params._id;
+	const userId = req.params[_id];
 	const description = req.body.description;
 	const duration = req.body.duration;
-	const dateInput = req.body.date;
+	const date = req.body.date;
+	date === undefined ? new Date(req.body.date) : Date.now();
 
 	//* Find the user
 	console.log(
@@ -120,7 +121,6 @@ app.post('/api/users/:_id/exercises', function (req, res) {
 			'Nov',
 			'Dec',
 		];
-		const date = new Date(dateInput);
 
 		let day = days[date.getDay()];
 		let month = months[date.getMonth()];
