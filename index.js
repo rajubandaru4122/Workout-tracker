@@ -93,7 +93,12 @@ app.post('/api/users/:_id/exercises', function (req, res) {
 	const description = req.body.description;
 	const duration = req.body.duration;
 	const date = req.body.date;
-	date === undefined ? new Date(req.body.date) : Date.now();
+
+	if (date) {
+		date = new Date(req.body.date);
+	} else {
+		date = Date.now();
+	}
 
 	//* Find the user
 	console.log(
@@ -135,7 +140,7 @@ app.post('/api/users/:_id/exercises', function (req, res) {
 			_id: user._id,
 		});
 
-		newExercise.save((err, exercise) => {
+		newExercise.save((err, _exercise) => {
 			if (err) {
 				console.error(err);
 				res.json({
@@ -202,7 +207,7 @@ app.get('/api/exercises/delete', function (_req, res) {
 			});
 		}
 
-		res.json(result);
+		res.json({ message: 'All exercises have been deleted!', result: result });
 	});
 });
 
