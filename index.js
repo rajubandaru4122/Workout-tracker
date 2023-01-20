@@ -188,7 +188,7 @@ app.get('/api/users/delete', function (_req, res) {
 			});
 		}
 
-		res.json({ message: 'All users have ben deleted!', result: result });
+		res.json({ message: 'All users have been deleted!', result: result });
 	});
 });
 
