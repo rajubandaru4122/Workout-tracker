@@ -144,7 +144,14 @@ app.post('/api/users/:_id/exercises', function (req, res) {
 			}
 
 			console.log('exercise creation successful!'.toLocaleUpperCase());
-			res.json(exercise);
+			console.log('returning user with added fields...'.toLocaleUpperCase());
+			res.json({
+				username: user.username,
+				_id: user._id,
+				description: newExercise.description,
+				duration: newExercise.duration,
+				date: newExercise.date,
+			});
 		});
 	});
 });
