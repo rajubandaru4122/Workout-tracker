@@ -7,6 +7,8 @@ const shortid = require('shortid');
 
 require('dotenv').config();
 
+//Middleware
+
 app.use(cors());
 app.use(express.static('public'));
 app.use(bodyParser.json());
@@ -19,25 +21,79 @@ mongoose.connect(process.env.MONGO_URI, {
 	useUnifiedTopology: true,
 });
 
-const userSchema = new mongoose.Schema({
-	username: String,
-	_id: String,
-});
+// Schemas
+
+const userSchema = new mongoose.Schema(
+	{
+		username: String,
+		_id: String,
+	},
+	{ autoIndex: false }
+);
+
+const exerciseSchema = new mongoose.Schema(
+	{
+		username: String,
+		description: String,
+		duration: Number,
+		date: String,
+		_id: String,
+	},
+	{ autoIndex: false }
+);
+
+// Models
 
 let ExerciseUser = mongoose.model('ExerciseUser', userSchema);
 
-const exerciseSchema = new mongoose.Schema({
-	username: String,
-	description: String,
-	duration: Number,
-	date: String,
-	_id: String,
-});
-
 let Exercise = mongoose.model('Exercise', exerciseSchema);
 
-app.get('/', (req, res) => {
+// Functions
+
+// Endpoints
+
+/**
+ * GET
+ * Delete all users
+ */
+app.get('/api/users/delete', function (_req, res) {
+	console.log('deleting all users...'.toLocaleUpperCase());
+
+	ExerciseUser.deleteMany({}, function (err, result) {
+		if (err) {
+			console.error(err);
+			res.json({
+				message: 'Deleting all users failed! Something went wrong...',
+			});
+		}
+
+		res.json({ message: 'All users have been deleted!', result: result });
+	});
+});
+
+/**
+ * GET
+ * Delete all exercises
+ */
+app.get('/api/exercises/delete', function (_req, res) {
+	console.log('deleting all exercises...'.toLocaleUpperCase());
+
+	Exercise.deleteMany({}, function (err, result) {
+		if (err) {
+			console.error(err);
+			res.json({
+				message: 'Deleting all exercises failed! Something went wrong...',
+			});
+		}
+
+		res.json({ message: 'All exercises have been deleted!', result: result });
+	});
+});
+
+app.get('/', async (_req, res) => {
 	res.sendFile(__dirname + '/views/index.html');
+	await ExerciseUser.syncIndexes();
+	await Exercise.syncIndexes();
 });
 
 /**
@@ -171,44 +227,6 @@ app.get('/api/users/:_id/logs?from&to&limit', function (req, res) {
 	const from = req.params.description;
 	const to = req.params.duration;
 	const limit = req.params.date;
-});
-
-/**
- * GET
- * Delete all users
- */
-app.get('/api/users/delete', function (_req, res) {
-	console.log('deleting all users...'.toLocaleUpperCase());
-
-	ExerciseUser.deleteMany({}, function (err, result) {
-		if (err) {
-			console.error(err);
-			res.json({
-				message: 'Deleting all users failed! Something went wrong...',
-			});
-		}
-
-		res.json({ message: 'All users have been deleted!', result: result });
-	});
-});
-
-/**
- * GET
- * Delete all exercises
- */
-app.get('/api/exercises/delete', function (_req, res) {
-	console.log('deleting all exercises...'.toLocaleUpperCase());
-
-	Exercise.deleteMany({}, function (err, result) {
-		if (err) {
-			console.error(err);
-			res.json({
-				message: 'Deleting all exercises failed! Something went wrong...',
-			});
-		}
-
-		res.json({ message: 'All exercises have been deleted!', result: result });
-	});
 });
 
 const listener = app.listen(process.env.PORT || 3000, () => {
