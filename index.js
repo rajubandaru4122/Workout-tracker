@@ -44,11 +44,26 @@ const exerciseSchema = new mongoose.Schema(
 
 // Models
 
-let ExerciseUser = mongoose.model('ExerciseUser', userSchema);
+let User = mongoose.model('User', userSchema);
 
 let Exercise = mongoose.model('Exercise', exerciseSchema);
 
 // Functions
+
+function isValidDate(date) {
+	const REGEX = /^\d{4}-\d{2}-\d{2}$/;
+
+	// Invalid format
+	if (!date.match(REGEX)) return false;
+
+	const newDate = new Date(date);
+	const dNum = newDate.getTime();
+
+	// NaN value, Invalid date
+	if (!dNum && dNum !== 0) return false;
+
+	return newDate.toISOString().slice(0, 10) === date;
+}
 
 // Endpoints
 
@@ -59,7 +74,7 @@ let Exercise = mongoose.model('Exercise', exerciseSchema);
 app.get('/api/users/delete', function (_req, res) {
 	console.log('deleting all users...'.toLocaleUpperCase());
 
-	ExerciseUser.deleteMany({}, function (err, result) {
+	User.deleteMany({}, function (err, result) {
 		if (err) {
 			console.error(err);
 			res.json({
@@ -92,7 +107,7 @@ app.get('/api/exercises/delete', function (_req, res) {
 
 app.get('/', async (_req, res) => {
 	res.sendFile(__dirname + '/views/index.html');
-	await ExerciseUser.syncIndexes();
+	await User.syncIndexes();
 	await Exercise.syncIndexes();
 });
 
@@ -103,7 +118,7 @@ app.get('/', async (_req, res) => {
 app.get('/api/users', function (_req, res) {
 	console.log('getting all users...'.toLocaleUpperCase());
 
-	ExerciseUser.find({}, function (err, users) {
+	User.find({}, function (err, users) {
 		if (err) {
 			console.error(err);
 			res.json({
@@ -111,6 +126,11 @@ app.get('/api/users', function (_req, res) {
 			});
 		}
 
+		if (users.length === 0) {
+			res.json({ message: 'There are no users in the database!' });
+		}
+
+		console.log('users in database: '.toLocaleUpperCase() + users.length);
 		res.json(users);
 	});
 });
@@ -126,7 +146,7 @@ app.post('/api/users', function (req, res) {
 	console.log(
 		'creating a new user with username - '.toLocaleUpperCase() + inputUsername
 	);
-	let newUser = new ExerciseUser({ username: inputUsername, _id: id });
+	let newUser = new User({ username: inputUsername, _id: id });
 
 	newUser.save((err, user) => {
 		if (err) {
@@ -160,7 +180,7 @@ app.post('/api/users/:_id/exercises', function (req, res) {
 	console.log(
 		'looking for user with id ['.toLocaleUpperCase() + userId + '] ...'
 	);
-	ExerciseUser.findOne({ _id: userId }, function (err, user) {
+	User.findOne({ _id: userId }, function (err, user) {
 		if (err) {
 			console.log('there is no user with that id...'.toLocaleUpperCase(), err);
 			res.json({ message: 'User not found!' });
