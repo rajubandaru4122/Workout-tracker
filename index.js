@@ -7,67 +7,49 @@ const shortid = require('shortid');
 
 require('dotenv').config();
 
-//Middleware
+//* Middleware
 
 app.use(cors());
 app.use(express.static('public'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-// MongoDB
+//* MongoDB
 
 mongoose.connect(process.env.MONGO_URI, {
 	useNewUrlParser: true,
 	useUnifiedTopology: true,
 });
 
-// Schemas
-
-const userSchema = new mongoose.Schema(
-	{
-		username: String,
-		_id: String,
-	},
-	{ autoIndex: false }
-);
+//* Schemas
 
 const exerciseSchema = new mongoose.Schema(
 	{
-		username: String,
-		description: String,
-		duration: Number,
+		description: { type: String, required: true },
+		duration: { type: Number, required: true },
 		date: String,
-		_id: String,
 	},
 	{ autoIndex: false }
 );
 
-// Models
+const userSchema = new mongoose.Schema(
+	{
+		username: { type: String, required: true },
+		_id: String,
+		log: [exerciseSchema],
+	},
+	{ autoIndex: false }
+);
+
+//* Models
 
 let User = mongoose.model('User', userSchema);
 
 let Exercise = mongoose.model('Exercise', exerciseSchema);
 
-// Functions
+//* Endpoints
 
-function isValidDate(date) {
-	const REGEX = /^\d{4}-\d{2}-\d{2}$/;
-
-	// Invalid format
-	if (!date.match(REGEX)) return false;
-
-	const newDate = new Date(date);
-	const dNum = newDate.getTime();
-
-	// NaN value, Invalid date
-	if (!dNum && dNum !== 0) return false;
-
-	return newDate.toISOString().slice(0, 10) === date;
-}
-
-// Endpoints
-
-/**
+/*
  * GET
  * Delete all users
  */
@@ -78,7 +60,7 @@ app.get('/api/users/delete', function (_req, res) {
 		if (err) {
 			console.error(err);
 			res.json({
-				message: 'Deleting all users failed! Something went wrong...',
+				message: 'Deleting all users failed!',
 			});
 		}
 
@@ -86,7 +68,7 @@ app.get('/api/users/delete', function (_req, res) {
 	});
 });
 
-/**
+/*
  * GET
  * Delete all exercises
  */
@@ -97,7 +79,7 @@ app.get('/api/exercises/delete', function (_req, res) {
 		if (err) {
 			console.error(err);
 			res.json({
-				message: 'Deleting all exercises failed! Something went wrong...',
+				message: 'Deleting all exercises failed!',
 			});
 		}
 
@@ -111,7 +93,7 @@ app.get('/', async (_req, res) => {
 	await Exercise.syncIndexes();
 });
 
-/**
+/*
  * GET
  * Get all users
  */
@@ -122,7 +104,7 @@ app.get('/api/users', function (_req, res) {
 		if (err) {
 			console.error(err);
 			res.json({
-				message: 'Getting all users failed! Something went wrong...',
+				message: 'Getting all users failed!',
 			});
 		}
 
@@ -135,7 +117,7 @@ app.get('/api/users', function (_req, res) {
 	});
 });
 
-/**
+/*
  * POST
  * Create a new user
  */
@@ -151,7 +133,7 @@ app.post('/api/users', function (req, res) {
 	newUser.save((err, user) => {
 		if (err) {
 			console.error(err);
-			res.json({ message: 'User creation failed! Something went wrong...' });
+			res.json({ message: 'User creation failed!' });
 		}
 
 		console.log('user creation successful!'.toLocaleUpperCase());
@@ -159,7 +141,7 @@ app.post('/api/users', function (req, res) {
 	});
 });
 
-/**
+/*
  * POST
  * Add a new exercise
  * @param _id
@@ -170,74 +152,45 @@ app.post('/api/users/:_id/exercises', function (req, res) {
 	const duration = req.body.duration;
 	const date = req.body.date;
 
-	if (date) {
-		date = new Date(req.body.date);
-	} else {
-		date = Date.now();
+	//? Check for date
+	if (date === '') {
+		date = new Date().toISOString().substring(0, 10);
 	}
 
-	//* Find the user
+	//* Create new exercise
+	let newExercise = new Exercise({
+		description: description,
+		duration: parseInt(duration),
+		date: date,
+	});
+
+	//? Find the user
 	console.log(
 		'looking for user with id ['.toLocaleUpperCase() + userId + '] ...'
 	);
-	User.findOne({ _id: userId }, function (err, user) {
-		if (err) {
-			console.log('there is no user with that id...'.toLocaleUpperCase(), err);
-			res.json({ message: 'User not found!' });
-		}
-
-		//* Create the exercise for that user
-		const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-		const months = [
-			'Jan',
-			'Feb',
-			'Mar',
-			'Apr',
-			'May',
-			'Jun',
-			'Jul',
-			'Aug',
-			'Sep',
-			'Oct',
-			'Nov',
-			'Dec',
-		];
-
-		let day = days[date.getDay()];
-		let month = months[date.getMonth()];
-		const fullDate =
-			day + ' ' + month + ' ' + date.getDate() + ' ' + date.getFullYear();
-
-		let newExercise = new Exercise({
-			username: user.username,
-			description: description,
-			duration: duration,
-			date: fullDate,
-			_id: user._id,
-		});
-
-		newExercise.save((err, _exercise) => {
-			if (err) {
-				console.error(err);
-				res.json({
-					message: 'Exercise creation failed! Something went wrong...',
-				});
+	User.findOneAndUpdate(
+		userId,
+		{ $push: { log: newExercise } },
+		{ new: true },
+		(error, updatedUser) => {
+			if (error) {
+				console.error(error);
+				res.json({ message: 'Exercise creation failed!' });
 			}
 
-			console.log('exercise creation successful!'.toLocaleUpperCase());
-			console.log('returning user with added fields...'.toLocaleUpperCase());
-			res.json({
-				username: user.username,
-				_id: user._id,
-				description: newExercise.description,
-				duration: newExercise.duration,
-				date: newExercise.date,
-			});
-		});
-	});
+			let updatedUser = {};
+			updatedUser['_id'] = updatedUser._id;
+			updatedUser['username'] = updatedUser.username;
+			updatedUser['date'] = new Date(newExercise.date).toDateString();
+			updatedUser['description'] = newExercise.description;
+			updatedUser['duration'] = newExercise.duration;
+
+			res.json(updatedUser);
+		}
+	);
 });
 
-/**
+/*
  * GET
  * Get a user's exercise log
  * @param _id
