@@ -26,7 +26,7 @@ mongoose.connect(process.env.MONGO_URI, {
 const exerciseSchema = new mongoose.Schema(
 	{
 		_id: String,
-		username: { type: String, required: true },
+		username: String,
 		description: { type: String, required: true },
 		duration: { type: Number, required: true },
 		date: String,
@@ -56,7 +56,7 @@ let Exercise = mongoose.model('Exercise', exerciseSchema);
  * Delete all users
  */
 app.get('/api/users/delete', function (_req, res) {
-	console.log('deleting all users...'.toLocaleUpperCase());
+	console.log('### delete all users ###'.toLocaleUpperCase());
 
 	User.deleteMany({}, function (err, result) {
 		if (err) {
@@ -75,7 +75,7 @@ app.get('/api/users/delete', function (_req, res) {
  * Delete all exercises
  */
 app.get('/api/exercises/delete', function (_req, res) {
-	console.log('deleting all exercises...'.toLocaleUpperCase());
+	console.log('### delete all exercises ###'.toLocaleUpperCase());
 
 	Exercise.deleteMany({}, function (err, result) {
 		if (err) {
@@ -100,7 +100,7 @@ app.get('/', async (_req, res) => {
  * Get all users
  */
 app.get('/api/users', function (_req, res) {
-	console.log('getting all users...'.toLocaleUpperCase());
+	console.log('### get all users ###'.toLocaleUpperCase());
 
 	User.find({}, function (err, users) {
 		if (err) {
@@ -126,6 +126,8 @@ app.get('/api/users', function (_req, res) {
 app.post('/api/users', function (req, res) {
 	const inputUsername = req.body.username;
 	const id = shortid.generate();
+
+	console.log('### create a new user ###'.toLocaleUpperCase());
 
 	console.log(
 		'creating a new user with username - '.toLocaleUpperCase() + inputUsername
@@ -154,41 +156,68 @@ app.post('/api/users/:_id/exercises', function (req, res) {
 	const duration = req.body.duration;
 	const date = req.body.date;
 
+	console.log('### add a new exercise ###'.toLocaleUpperCase());
+
 	//? Check for date
 	if (date === '') {
 		date = new Date().toISOString().substring(0, 10);
 	}
 
-	//* Create new exercise
-	let newExercise = new Exercise({
-		description: description,
-		duration: parseInt(duration),
-		date: date,
-	});
-
 	//? Find the user
 	console.log(
 		'looking for user with id ['.toLocaleUpperCase() + userId + '] ...'
 	);
-	User.findOneAndUpdate(
-		userId,
-		{ $push: { log: newExercise } },
-		{ new: true },
-		(error, updatedUser) => {
-			if (error) {
-				console.error(error);
+	User.findById(userId, (err, userInDb) => {
+		if (err) {
+			console.error(err);
+			res.json({ message: 'There are no users with that ID in the database!' });
+		}
+
+		//* Create new exercise
+		let newExercise = new Exercise({
+			_id: userInDb._id,
+			username: userInDb.username,
+			description: description,
+			duration: parseInt(duration),
+			date: date,
+		});
+
+		newExercise.save((err, exercise) => {
+			if (err) {
+				console.error(err);
 				res.json({ message: 'Exercise creation failed!' });
 			}
 
-			res.json({
-				username: updatedUser.username,
-				description: newExercise.description,
-				duration: newExercise.duration,
-				date: new Date(newExercise.date).toDateString(),
-				_id: updatedUser._id,
-			});
-		}
-	);
+			console.log('exercise creation successful!'.toLocaleUpperCase());
+			// res.json({
+			// 	username: userInDb.username,
+			// 	_id: userInDb._id,
+			// 	description: exercise.description,
+			// 	duration: exercise.duration,
+			// 	date: new Date(exercise.date).toDateString(),
+			// });
+
+			User.findOneAndUpdate(
+				userInDb._id,
+				{ $push: { log: exercise } },
+				{ new: true },
+				(error, updatedUser) => {
+					if (error) {
+						console.error(error);
+						res.json({ message: 'User modification failed!' });
+					}
+
+					res.json({
+						username: updatedUser.username,
+						description: exercise.description,
+						duration: exercise.duration,
+						date: new Date(exercise.date).toDateString(),
+						_id: updatedUser._id,
+					});
+				}
+			);
+		});
+	});
 });
 
 /*
