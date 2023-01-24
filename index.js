@@ -178,14 +178,13 @@ app.post('/api/users/:_id/exercises', function (req, res) {
 				res.json({ message: 'Exercise creation failed!' });
 			}
 
-			let responseUser = {};
-			responseUser['_id'] = updatedUser._id;
-			responseUser['username'] = updatedUser.username;
-			responseUser['date'] = new Date(newExercise.date).toDateString();
-			responseUser['description'] = newExercise.description;
-			responseUser['duration'] = newExercise.duration;
-
-			res.json(responseUser);
+			res.json({
+				username: updatedUser.username,
+				description: newExercise.description,
+				duration: newExercise.duration,
+				date: new Date(newExercise.date).toDateString(),
+				_id: updatedUser._id,
+			});
 		}
 	);
 });
