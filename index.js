@@ -23,25 +23,18 @@ mongoose.connect(process.env.MONGO_URI, {
 
 //* Schemas
 
-const exerciseSchema = new mongoose.Schema(
-	{
-		_id: String,
-		username: String,
-		description: { type: String, required: true },
-		duration: { type: Number, required: true },
-		date: String,
-	},
-	{ autoIndex: false }
-);
+const exerciseSchema = new mongoose.Schema({
+	_id: String,
+	username: String,
+	description: { type: String, required: true },
+	duration: { type: Number, required: true },
+	date: String,
+});
 
-const userSchema = new mongoose.Schema(
-	{
-		username: { type: String, required: true },
-		_id: String,
-		log: [exerciseSchema],
-	},
-	{ autoIndex: false }
-);
+const userSchema = new mongoose.Schema({
+	username: String,
+	_id: String,
+});
 
 //* Models
 
@@ -189,33 +182,33 @@ app.post('/api/users/:_id/exercises', function (req, res) {
 			}
 
 			console.log('exercise creation successful!'.toLocaleUpperCase());
-			// res.json({
-			// 	username: userInDb.username,
-			// 	_id: userInDb._id,
-			// 	description: exercise.description,
-			// 	duration: exercise.duration,
-			// 	date: new Date(exercise.date).toDateString(),
-			// });
+			res.json({
+				username: userInDb.username,
+				description: exercise.description,
+				duration: exercise.duration,
+				date: new Date(exercise.date).toDateString(),
+				_id: userInDb._id,
+			});
 
-			User.findOneAndUpdate(
-				userInDb._id,
-				{ $push: { log: exercise } },
-				{ new: true },
-				(error, updatedUser) => {
-					if (error) {
-						console.error(error);
-						res.json({ message: 'User modification failed!' });
-					}
+			// User.findOneAndUpdate(
+			// 	userInDb._id,
+			// 	{ $push: { log: exercise } },
+			// 	{ new: true },
+			// 	(error, updatedUser) => {
+			// 		if (error) {
+			// 			console.error(error);
+			// 			res.json({ message: 'User modification failed!' });
+			// 		}
 
-					res.json({
-						username: updatedUser.username,
-						description: exercise.description,
-						duration: exercise.duration,
-						date: new Date(exercise.date).toDateString(),
-						_id: updatedUser._id,
-					});
-				}
-			);
+			// 		res.json({
+			// 			username: updatedUser.username,
+			// 			description: exercise.description,
+			// 			duration: exercise.duration,
+			// 			date: new Date(exercise.date).toDateString(),
+			// 			_id: updatedUser._id,
+			// 		});
+			// 	}
+			// );
 		});
 	});
 });
