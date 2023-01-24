@@ -25,6 +25,8 @@ mongoose.connect(process.env.MONGO_URI, {
 
 const exerciseSchema = new mongoose.Schema(
 	{
+		_id: String,
+		username: { type: String, required: true },
 		description: { type: String, required: true },
 		duration: { type: Number, required: true },
 		date: String,
@@ -147,7 +149,7 @@ app.post('/api/users', function (req, res) {
  * @param _id
  */
 app.post('/api/users/:_id/exercises', function (req, res) {
-	const userId = req.params[_id];
+	const userId = req.params._id;
 	const description = req.body.description;
 	const duration = req.body.duration;
 	const date = req.body.date;
