@@ -220,23 +220,15 @@ app.get('/api/users/:_id/logs', async function (req, res) {
 	);
 
 	//? Find the exercises
-	Exercise.find(
-		{ _id: userId },
-		{ date: { $gte: from, $lte: to } },
-		{ description: 1, duration: 1, date: 1, _id: 0, username: 0 },
-		{ limit: limit },
-		function (err, exercises) {
-			if (err) {
-				console.error(err);
-				res.json({ message: 'Exercise search failed!' });
-			}
+	let exercises = await Exercise.find({
+		_id: userId,
+		date: { $gte: from, $lte: to },
+	})
+		.select('description duration date')
+		.limit(limit)
+		.exec();
 
-			let log = [];
-
-			console.log('exercises search successful!'.toLocaleUpperCase());
-			res.json({ user: user, size: exercises.length });
-		}
-	);
+	res.json({ user: user, size: exercises.length });
 });
 
 const listener = app.listen(process.env.PORT || 3000, () => {
