@@ -144,10 +144,10 @@ app.post('/api/users', function (req, res) {
  * @param _id
  */
 app.post('/api/users/:_id/exercises', function (req, res) {
-	const userId = req.params._id;
-	const description = req.body.description;
-	const duration = req.body.duration;
-	const date = req.body.date;
+	var userId = req.params._id;
+	var description = req.body.description;
+	var duration = req.body.duration;
+	var date = req.body.date;
 
 	console.log('### add a new exercise ###'.toLocaleUpperCase());
 
