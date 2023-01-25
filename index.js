@@ -198,7 +198,7 @@ app.post('/api/users/:_id/exercises', function (req, res) {
  * Get a user's exercise log
  * @param _id
  */
-app.get('/api/users/:_id/logs?from&to&limit', function (req, res) {
+app.get('/api/users/:_id/logs', function (req, res) {
 	const userId = req.params._id;
 	const from = req.params.description || new Date();
 	const to = req.params.duration || new Date();
