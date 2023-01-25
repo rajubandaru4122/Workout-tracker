@@ -108,6 +108,7 @@ app.get('/api/users', function (_req, res) {
 		}
 
 		console.log('users in database: '.toLocaleUpperCase() + users.length);
+
 		res.json(users);
 	});
 });
@@ -122,10 +123,12 @@ app.post('/api/users', function (req, res) {
 
 	console.log('### create a new user ###'.toLocaleUpperCase());
 
+	//? Create a new user
+	let newUser = new User({ username: inputUsername, _id: id });
+
 	console.log(
 		'creating a new user with username - '.toLocaleUpperCase() + inputUsername
 	);
-	let newUser = new User({ username: inputUsername, _id: id });
 
 	newUser.save((err, user) => {
 		if (err) {
@@ -134,6 +137,7 @@ app.post('/api/users', function (req, res) {
 		}
 
 		console.log('user creation successful!'.toLocaleUpperCase());
+
 		res.json({ username: user.username, _id: user._id });
 	});
 });
@@ -156,10 +160,11 @@ app.post('/api/users/:_id/exercises', function (req, res) {
 		date = new Date().toISOString().substring(0, 10);
 	}
 
-	//? Find the user
 	console.log(
 		'looking for user with id ['.toLocaleUpperCase() + userId + '] ...'
 	);
+
+	//? Find the user
 	User.findById(userId, (err, userInDb) => {
 		if (err) {
 			console.error(err);
@@ -182,6 +187,7 @@ app.post('/api/users/:_id/exercises', function (req, res) {
 			}
 
 			console.log('exercise creation successful!'.toLocaleUpperCase());
+
 			res.json({
 				username: userInDb.username,
 				description: exercise.description,
@@ -198,7 +204,7 @@ app.post('/api/users/:_id/exercises', function (req, res) {
  * Get a user's exercise log
  * @param _id
  */
-app.get('/api/users/:_id/logs', function (req, res) {
+app.get('/api/users/:_id/logs', async function (req, res) {
 	const userId = req.params._id;
 	const from = req.params.description || new Date();
 	const to = req.params.duration || new Date();
@@ -207,34 +213,30 @@ app.get('/api/users/:_id/logs', function (req, res) {
 	console.log('### get the log from a user ###'.toLocaleUpperCase());
 
 	//? Find the user
+	let user = await User.findById(userId).exec();
+
 	console.log(
-		'looking for user with id ['.toLocaleUpperCase() + userId + '] ...'
+		'looking for exercises with id ['.toLocaleUpperCase() + userId + '] ...'
 	);
-	User.findById(userId, (err, userInDb) => {
-		if (err) {
-			console.error(err);
-			res.json({ message: 'There are no users with that ID in the database!' });
-		}
 
-		//? Find the exercises
-		Exercise.find(
-			{ _id: userId },
-			{ date: { $gte: from, $lte: to } },
-			{ description: 1, duration: 1, date: 1, _id: 0, username: 0 },
-			{ limit: limit },
-			function (err, exercises) {
-				if (err) {
-					console.error(err);
-					res.json({ message: 'Exercise search failed!' });
-				}
-
-				let log = [];
-
-				console.log('exercises search successful!'.toLocaleUpperCase());
-				res.json({ size: exercises.length });
+	//? Find the exercises
+	Exercise.find(
+		{ _id: userId },
+		{ date: { $gte: from, $lte: to } },
+		{ description: 1, duration: 1, date: 1, _id: 0, username: 0 },
+		{ limit: limit },
+		function (err, exercises) {
+			if (err) {
+				console.error(err);
+				res.json({ message: 'Exercise search failed!' });
 			}
-		);
-	});
+
+			let log = [];
+
+			console.log('exercises search successful!'.toLocaleUpperCase());
+			res.json({ user: user, size: exercises.length });
+		}
+	);
 });
 
 const listener = app.listen(process.env.PORT || 3000, () => {
