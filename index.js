@@ -228,7 +228,7 @@ app.get('/api/users/:_id/logs?from&to&limit', function (req, res) {
 					res.json({ message: 'Exercise search failed!' });
 				}
 
-				let exercises = [];
+				let log = [];
 
 				console.log('exercises search successful!'.toLocaleUpperCase());
 				res.json({ size: exercises.length });
