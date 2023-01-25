@@ -189,26 +189,6 @@ app.post('/api/users/:_id/exercises', function (req, res) {
 				date: new Date(exercise.date).toDateString(),
 				_id: userInDb._id,
 			});
-
-			// User.findOneAndUpdate(
-			// 	userInDb._id,
-			// 	{ $push: { log: exercise } },
-			// 	{ new: true },
-			// 	(error, updatedUser) => {
-			// 		if (error) {
-			// 			console.error(error);
-			// 			res.json({ message: 'User modification failed!' });
-			// 		}
-
-			// 		res.json({
-			// 			username: updatedUser.username,
-			// 			description: exercise.description,
-			// 			duration: exercise.duration,
-			// 			date: new Date(exercise.date).toDateString(),
-			// 			_id: updatedUser._id,
-			// 		});
-			// 	}
-			// );
 		});
 	});
 });
@@ -220,9 +200,41 @@ app.post('/api/users/:_id/exercises', function (req, res) {
  */
 app.get('/api/users/:_id/logs?from&to&limit', function (req, res) {
 	const userId = req.params._id;
-	const from = req.params.description;
-	const to = req.params.duration;
-	const limit = req.params.date;
+	const from = req.params.description || new Date();
+	const to = req.params.duration || new Date();
+	const limit = req.params.date || 0;
+
+	console.log('### get the log from a user ###'.toLocaleUpperCase());
+
+	//? Find the user
+	console.log(
+		'looking for user with id ['.toLocaleUpperCase() + userId + '] ...'
+	);
+	User.findById(userId, (err, userInDb) => {
+		if (err) {
+			console.error(err);
+			res.json({ message: 'There are no users with that ID in the database!' });
+		}
+
+		//? Find the exercises
+		Exercise.find(
+			{ _id: userId },
+			{ date: { $gte: from, $lte: to } },
+			{ description: 1, duration: 1, date: 1, _id: 0, username: 0 },
+			{ limit: limit },
+			function (err, exercises) {
+				if (err) {
+					console.error(err);
+					res.json({ message: 'Exercise search failed!' });
+				}
+
+				let exercises = [];
+
+				console.log('exercises search successful!'.toLocaleUpperCase());
+				res.json({ size: exercises.length });
+			}
+		);
+	});
 });
 
 const listener = app.listen(process.env.PORT || 3000, () => {
