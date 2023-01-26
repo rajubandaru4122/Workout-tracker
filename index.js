@@ -204,8 +204,9 @@ app.get('/api/users/:_id/logs', async function (req, res) {
 	const userId = req.params._id;
 	const from =
 		req.params.description || new Date(0).toISOString().substring(0, 10);
-	const to = req.params.duration || new Date().toISOString().substring(0, 10);
-	const limit = req.params.date || 0;
+	const to =
+		req.params.duration || new Date(Date.now()).toISOString().substring(0, 10);
+	const limit = Number(req.params.date) || 0;
 
 	console.log('### get the log from a user ###'.toLocaleUpperCase());
 
