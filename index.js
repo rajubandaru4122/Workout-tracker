@@ -234,8 +234,6 @@ app.get('/api/users/:_id/logs', async function (req, res) {
 		};
 	});
 
-	console.log('LOG - ', curatedLog);
-
 	res.json({
 		_id: userId,
 		username: user.username,
