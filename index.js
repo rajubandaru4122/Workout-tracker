@@ -229,7 +229,7 @@ app.get('/api/users/:_id/logs', async function (req, res) {
 		return {
 			description: exercise.description,
 			duration: exercise.duration,
-			date: exercise.date,
+			date: new Date(exercise.date).toDateString(),
 		};
 	});
 
