@@ -136,8 +136,6 @@ app.post('/api/users', function (req, res) {
 			res.json({ message: 'User creation failed!' });
 		}
 
-		console.log('user creation successful!'.toLocaleUpperCase());
-
 		res.json({ username: user.username, _id: user._id });
 	});
 });
@@ -186,8 +184,6 @@ app.post('/api/users/:_id/exercises', function (req, res) {
 				res.json({ message: 'Exercise creation failed!' });
 			}
 
-			console.log('exercise creation successful!'.toLocaleUpperCase());
-
 			res.json({
 				username: userInDb.username,
 				description: exercise.description,
@@ -206,8 +202,9 @@ app.post('/api/users/:_id/exercises', function (req, res) {
  */
 app.get('/api/users/:_id/logs', async function (req, res) {
 	const userId = req.params._id;
-	const from = req.params.description || new Date();
-	const to = req.params.duration || new Date();
+	const from =
+		req.params.description || new Date(0).toISOString().substring(0, 10);
+	const to = req.params.duration || new Date().toISOString().substring(0, 10);
 	const limit = req.params.date || 0;
 
 	console.log('### get the log from a user ###'.toLocaleUpperCase());
@@ -228,7 +225,12 @@ app.get('/api/users/:_id/logs', async function (req, res) {
 		.limit(limit)
 		.exec();
 
-	res.json({ user: user, size: exercises.length });
+	res.json({
+		_id: userId,
+		username: user.username,
+		count: exercises.length,
+		log: exercises,
+	});
 });
 
 const listener = app.listen(process.env.PORT || 3000, () => {
