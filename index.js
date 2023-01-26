@@ -24,7 +24,7 @@ mongoose.connect(process.env.MONGO_URI, {
 //* Schemas
 
 const exerciseSchema = new mongoose.Schema({
-	_id: String,
+	userId: String,
 	username: String,
 	description: { type: String, required: true },
 	duration: { type: Number, required: true },
@@ -171,7 +171,7 @@ app.post('/api/users/:_id/exercises', function (req, res) {
 
 		//* Create new exercise
 		let newExercise = new Exercise({
-			_id: userInDb._id,
+			userId: userInDb._id,
 			username: userInDb.username,
 			description: description,
 			duration: parseInt(duration),
@@ -218,18 +218,28 @@ app.get('/api/users/:_id/logs', async function (req, res) {
 
 	//? Find the exercises
 	let exercises = await Exercise.find({
-		_id: userId,
+		userId: userId,
 		date: { $gte: from, $lte: to },
 	})
 		.select('description duration date')
 		.limit(limit)
 		.exec();
 
+	let curatedLog = exercises.map((exercise) => {
+		return {
+			description: exercise.description,
+			duration: exercise.duration,
+			date: exercise.date,
+		};
+	});
+
+	console.log('LOG - ', curatedLog);
+
 	res.json({
 		_id: userId,
 		username: user.username,
 		count: exercises.length,
-		log: exercises,
+		log: curatedLog,
 	});
 });
 
