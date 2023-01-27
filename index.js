@@ -237,10 +237,10 @@ app.get('/api/users/:_id/logs', async function (req, res) {
 	});
 
 	res.json({
-		_id: userId,
+		_id: user._id,
 		username: user.username,
-		count: exercises.length,
-		log: curatedLog,
+		count: user.count,
+		log: usr.log,
 	});
 });
 
