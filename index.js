@@ -34,6 +34,8 @@ const exerciseSchema = new mongoose.Schema({
 const userSchema = new mongoose.Schema({
 	username: String,
 	_id: String,
+	count: { type: Number, default: 0 },
+	log: { type: [exerciseSchema], default: [] },
 });
 
 //* Models
