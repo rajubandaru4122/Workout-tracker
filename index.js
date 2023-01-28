@@ -33,9 +33,6 @@ const exerciseSchema = new mongoose.Schema({
 
 const userSchema = new mongoose.Schema({
 	username: String,
-	_id: String,
-	count: { type: Number, default: 0 },
-	log: { type: [exerciseSchema], default: [] },
 });
 
 //* Models
@@ -126,7 +123,7 @@ app.post('/api/users', function (req, res) {
 	console.log('### create a new user ###'.toLocaleUpperCase());
 
 	//? Create a new user
-	let newUser = new User({ username: inputUsername, _id: id });
+	let newUser = new User({ username: inputUsername });
 
 	console.log(
 		'creating a new user with username - '.toLocaleUpperCase() + inputUsername
@@ -179,6 +176,12 @@ app.post('/api/users/:_id/exercises', function (req, res) {
 			duration: parseInt(duration),
 			date: date,
 		});
+
+		//* Add exercise to user
+		console.log('LOG - ' + userInDb[log]);
+		let tmp = userInDb.log;
+		tmp.push(JSON.parse(newExercise));
+		console.log('TMP - ' + tmp);
 
 		newExercise.save((err, exercise) => {
 			if (err) {
@@ -237,10 +240,10 @@ app.get('/api/users/:_id/logs', async function (req, res) {
 	});
 
 	res.json({
-		_id: user._id,
 		username: user.username,
 		count: user.count,
-		log: user.log,
+		_id: user._id,
+		log: curatedLog,
 	});
 });
 
