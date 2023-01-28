@@ -177,12 +177,6 @@ app.post('/api/users/:_id/exercises', function (req, res) {
 			date: date,
 		});
 
-		//* Add exercise to user
-		console.log('LOG - ' + userInDb[log]);
-		let tmp = userInDb.log;
-		tmp.push(JSON.parse(newExercise));
-		console.log('TMP - ' + tmp);
-
 		newExercise.save((err, exercise) => {
 			if (err) {
 				console.error(err);
