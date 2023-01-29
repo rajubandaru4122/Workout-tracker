@@ -225,7 +225,7 @@ app.get('/api/users/:_id/logs', async function (req, res) {
 		.limit(limit)
 		.exec();
 
-	let curatedLog = exercises.map((exercise) => {
+	let parsedDatesLog = exercises.map((exercise) => {
 		return {
 			description: exercise.description,
 			duration: exercise.duration,
@@ -234,10 +234,10 @@ app.get('/api/users/:_id/logs', async function (req, res) {
 	});
 
 	res.json({
-		username: user.username,
-		count: user.count,
 		_id: user._id,
-		log: curatedLog,
+		username: user.username,
+		count: exercises.length,
+		log: parsedDatesLog,
 	});
 });
 
