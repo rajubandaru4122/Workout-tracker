@@ -201,11 +201,10 @@ app.post('/api/users/:_id/exercises', function (req, res) {
  */
 app.get('/api/users/:_id/logs', async function (req, res) {
 	const userId = req.params._id;
-	const from =
-		req.params.description || new Date(0).toISOString().substring(0, 10);
+	const from = req.query.from || new Date(0).toISOString().substring(0, 10);
 	const to =
-		req.params.duration || new Date(Date.now()).toISOString().substring(0, 10);
-	const limit = Number(req.params.date) || 0;
+		req.query.to || new Date(Date.now()).toISOString().substring(0, 10);
+	const limit = Number(req.query.limit) || 0;
 
 	console.log('### get the log from a user ###'.toLocaleUpperCase());
 
