@@ -118,7 +118,6 @@ app.get('/api/users', function (_req, res) {
  */
 app.post('/api/users', function (req, res) {
 	const inputUsername = req.body.username;
-	const id = shortid.generate();
 
 	console.log('### create a new user ###'.toLocaleUpperCase());
 
@@ -153,7 +152,7 @@ app.post('/api/users/:_id/exercises', function (req, res) {
 	console.log('### add a new exercise ###'.toLocaleUpperCase());
 
 	//? Check for date
-	if (date === '') {
+	if (!date) {
 		date = new Date().toISOString().substring(0, 10);
 	}
 
@@ -235,7 +234,7 @@ app.get('/api/users/:_id/logs', async function (req, res) {
 	res.json({
 		_id: user._id,
 		username: user.username,
-		count: exercises.length,
+		count: parsedDatesLog.length,
 		log: parsedDatesLog,
 	});
 });
